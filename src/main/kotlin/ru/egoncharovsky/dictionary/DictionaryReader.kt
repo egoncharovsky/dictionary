@@ -53,29 +53,62 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
         return positions
     }
 
-    fun scanArticlePositions(): Map<String, List<Long>> = RandomAccessFile(dictionaryFile, "r").use { raf ->
+    fun scanArticlePositions(): Map<String, List<Long>> {
         logger.debug("Scanning dictionary...")
 
-        val keyPositions = mutableMapOf<String, List<Long>>()
-        while (raf.filePointer < raf.length()) {
-            val lineStart = raf.filePointer
-            raf.readLine(charset("UTF-8"))?.let { line ->
-                if (line.startsWith(Tag.article)) {
+        return RandomAccessFile(dictionaryFile, "r").use { raf ->
 
-                    val key = parseKey(line) ?: throw KeyNotFound(lineStart, line)
+            val keyPositions = mutableMapOf<String, List<Long>>()
+            while (raf.filePointer < raf.length()) {
+                val lineStart = raf.filePointer
+                raf.readLine(charset("UTF-8"))?.let { line ->
+                    if (line.startsWith(Tag.article)) {
 
-                    keyPositions[key] = keyPositions[key]?.plus(lineStart) ?: run {
-                        listOf(lineStart)
+                        val key = parseKey(line) ?: throw KeyNotFound(lineStart, line)
+
+                        keyPositions[key] = keyPositions[key]?.plus(lineStart) ?: run {
+                            listOf(lineStart)
+                        }
+
                     }
-
                 }
             }
-        }
-        logger.debug("Keys found total: ${keyPositions.size}")
-        keyPositions
-    }.toMap()
+            logger.debug("Keys found total: ${keyPositions.size}")
+            keyPositions
+        }.toMap()
+    }
 
     fun clearIndex() = if (indexFile.exists()) indexFile.delete() else true
+
+    fun readArticle(position: Long): List<String> {
+        logger.debug("Read article at $position")
+
+        val article: List<String>
+        val time = measureTimeMillis {
+            article = RandomAccessFile(dictionaryFile, "r").use { raf ->
+                raf.seek(position)
+                var articleCounter = 0
+                val articleLines = mutableListOf<String>()
+
+                while (raf.filePointer < raf.length()) {
+                    val line = raf.readLine(charset("UTF-8"))
+                    if (line != null) {
+                        if (line.startsWith(Tag.article)) {
+                            articleCounter++
+                        }
+                        if (articleCounter > 1) {
+                            break
+                        } else {
+                            articleLines.add(line)
+                        }
+                    }
+                }
+                articleLines
+            }
+        }
+        logger.debug("Article read in ${time/1000}.${time%1000} s")
+        return article
+    }
 
     private fun restoreArticlePositions(indexLines: List<String>): Map<String, List<Long>> {
         logger.debug("Restoring index")
