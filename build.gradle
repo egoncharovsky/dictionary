@@ -6,6 +6,10 @@ plugins {
 group = 'ru.egoncharovsky'
 version = '1.0-SNAPSHOT'
 
+ext {
+    log4jVersion = '2.9.1'
+}
+
 repositories {
     mavenCentral()
     maven { url 'http://maven.geomajas.org/' }
@@ -15,7 +19,10 @@ dependencies {
     implementation 'com.twmacinta:fast-md5:2.7.1'
 
     implementation 'io.github.microutils:kotlin-logging-jvm:2.0.4'
-    implementation 'org.slf4j:slf4j-simple:1.7.29'
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+    implementation "org.apache.logging.log4j:log4j-api:$log4jVersion"
+    implementation "org.apache.logging.log4j:log4j-core:$log4jVersion"
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
