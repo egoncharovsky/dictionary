@@ -1,6 +1,10 @@
 package ru.egoncharovsky.dictionary
 
-import ru.egoncharovsky.dictionary.entity.*
+import ru.egoncharovsky.dictionary.entity.Abbreviation
+import ru.egoncharovsky.dictionary.entity.text.AbbreviatedText
+import ru.egoncharovsky.dictionary.entity.text.MultipartText
+import ru.egoncharovsky.dictionary.entity.text.PlainText
+import ru.egoncharovsky.dictionary.entity.text.Text
 
 class TextParser(
     private val abbreviations: Map<String, Abbreviation>

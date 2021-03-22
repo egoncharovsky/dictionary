@@ -9,8 +9,6 @@ class ArticleParser(
 ) {
 
     private val key = "${Tags.key}(.*)${Tags.key.closing()}".toRegex()
-    private val translation = "[1-9][0-9]*&gt; (.*)".toRegex()
-
     private val example = "([a-zA-Z ,;'\".?!()]+)([а-яА-Я ,;'\".?!()_]+)".toRegex()
 
     private val translationMarker = "[1-9][0-9]*&gt;".toRegex()

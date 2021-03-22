@@ -1,10 +1,10 @@
 package ru.egoncharovsky.dictionary
 
 import org.junit.jupiter.api.Test
-import ru.egoncharovsky.dictionary.entity.AbbreviatedText
 import ru.egoncharovsky.dictionary.entity.Abbreviation
-import ru.egoncharovsky.dictionary.entity.MultipartText
-import ru.egoncharovsky.dictionary.entity.PlainText
+import ru.egoncharovsky.dictionary.entity.text.AbbreviatedText
+import ru.egoncharovsky.dictionary.entity.text.MultipartText
+import ru.egoncharovsky.dictionary.entity.text.PlainText
 import kotlin.test.assertEquals
 
 internal class TextParserTest {

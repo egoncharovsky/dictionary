@@ -6,9 +6,10 @@ import java.io.File
 import java.io.RandomAccessFile
 import kotlin.system.measureTimeMillis
 
-class DictionaryReader(dictionaryPath: String, indexPath: String) {
-    private val dictionaryFile = File(dictionaryPath)
-    private val indexFile = File(indexPath)
+class DictionaryReader(
+    private val dictionaryFile: File,
+    private val indexFile: File
+) {
 
     private val keyRegex = "${Tags.key}(.*)${Tags.key.closing()}".toRegex()
 
@@ -53,15 +54,13 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
             val keyPositions = mutableMapOf<String, List<Long>>()
             while (raf.filePointer < raf.length()) {
                 val lineStart = raf.filePointer
-                raf.readLine(charset("UTF-8"))?.let { line ->
-                    if (line.startsWith(Tags.article.toString())) {
+                val line = raf.readLine(charset("UTF-8"))
 
-                        val key = parseKey(line) ?: throw KeyNotFound(lineStart, line)
+                if (line != null && line.startsWith(Tags.article.toString())) {
+                    val key = parseKey(line) ?: throw KeyNotFound(lineStart, line)
 
-                        keyPositions[key] = keyPositions[key]?.plus(lineStart) ?: run {
-                            listOf(lineStart)
-                        }
-
+                    keyPositions[key] = keyPositions[key]?.plus(lineStart) ?: run {
+                        listOf(lineStart)
                     }
                 }
             }
@@ -89,7 +88,7 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
         val articles: List<List<String>>
         val time = measureTimeMillis {
             articles = RandomAccessFile(dictionaryFile, "r").use { raf ->
-                positions.map { readArticleLines(raf, it)  }
+                positions.map { readArticleLines(raf, it) }
             }
         }
         logger.debug("Articles read in ${seconds(time)}")
@@ -119,12 +118,16 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
 
     private fun restoreArticlePositions(indexLines: List<String>): Map<String, List<Long>> {
         logger.debug("Restoring index")
-        return indexLines[1].split(indexSeparator).map {
+        val index = indexLines[1].split(indexSeparator).map {
             val split = it.split(indexKeyValueSeparator)
             val key = split[0]
             val position = split[1].toLong()
             key to position
-        }.groupBy( { it.first }, { it.second } )
+        }.groupBy({ it.first }, { it.second })
+
+        logger.debug("Restored ${index.size} keys")
+
+        return index
     }
 
     private fun saveArticlePositionsIndex(hash: String, positions: Map<String, List<Long>>) {
@@ -141,5 +144,5 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
 
     private fun parseKey(articleLine: String): String? = keyRegex.find(articleLine)?.groups?.get(1)?.value
 
-    private fun seconds(millis: Long) = "${millis/1000}.${millis%1000} s"
+    private fun seconds(millis: Long) = "${millis / 1000}.${millis % 1000} s"
 }

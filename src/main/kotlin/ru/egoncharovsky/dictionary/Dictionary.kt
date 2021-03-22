@@ -1,11 +1,14 @@
 package ru.egoncharovsky.dictionary
 
+import mu.KotlinLogging
 import ru.egoncharovsky.dictionary.entity.Abbreviation
 import ru.egoncharovsky.dictionary.entity.Article
 
 class Dictionary(
   private val reader: DictionaryReader
 ) {
+
+    private val logger = KotlinLogging.logger {  }
 
     private val abbreviationRegex = "([а-я\\-]+)".toRegex()
     private val abbreviationKeyRegex = "(_[а-я\\-]+\\.)".toRegex()
@@ -14,11 +17,13 @@ class Dictionary(
     private val articleParser = ArticleParser(TextParser(getAbbreviations()))
 
     fun getArticles(word: String): List<Article>? {
-        return index[word]?.map { articleParser.parseArticle(reader.readArticle(it)) }
+        logger.debug("Getting articles for '$word'")
+        return index[word]?.map { reader.readArticle(it) }?.map { articleParser.parseArticle(it) }
     }
 
     private fun getAbbreviations(): Map<String, Abbreviation> {
         val abbreviationIndex = index.filterKeys { this.abbreviationRegex.matches(it) }
+        logger.debug("Read articles for ${abbreviationIndex.size} abbreviations")
         val abbreviations = reader.readArticles(abbreviationIndex.values.flatten().toList()).map {
             parseAbbreviation(it)
         }

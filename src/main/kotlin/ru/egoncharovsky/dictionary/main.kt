@@ -1,10 +1,12 @@
 package ru.egoncharovsky.dictionary
 
-fun main(args: Array<String>) {
+import java.io.File
 
-    val reader = DictionaryReader("content/magus/dict.xdxf", "index/magus_dict.xdxf.index")
+fun main(args: Array<String>) {
+    val dictionaryFile = File(DictionaryReader::class.java.classLoader.getResource("magus/dict.xdxf")!!.toURI())
+    val reader = DictionaryReader(dictionaryFile, File("index/magus_dict.xdxf.index"))
 
     val dictionary = Dictionary(reader)
-    val articles = dictionary.getArticles("assembly")
+    val articles = dictionary.getArticles("run")
     println(articles!![0].raw)
 }

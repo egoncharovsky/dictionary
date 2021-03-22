@@ -3,8 +3,8 @@ package ru.egoncharovsky.dictionary
 import org.junit.jupiter.api.Test
 import ru.egoncharovsky.dictionary.entity.Article
 import ru.egoncharovsky.dictionary.entity.Example
-import ru.egoncharovsky.dictionary.entity.PlainText
 import ru.egoncharovsky.dictionary.entity.Translation
+import ru.egoncharovsky.dictionary.entity.text.PlainText
 import kotlin.test.assertEquals
 
 
