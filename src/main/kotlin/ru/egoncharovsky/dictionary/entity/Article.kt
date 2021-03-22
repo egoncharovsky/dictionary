@@ -15,14 +15,14 @@ data class Article(
         private var translation: TranslationBuilder? = null
 
         class TranslationBuilder(
-            private val meaning: String
+            private val meaning: Text
         ) {
             val examples: MutableList<Example> = mutableListOf()
 
             fun build() = Translation(meaning, examples)
         }
 
-        fun addTranslation(meaning: String) {
+        fun addTranslation(meaning: Text) {
             flushTranslation()
             translation = TranslationBuilder(meaning)
         }

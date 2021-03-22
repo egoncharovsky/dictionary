@@ -41,7 +41,7 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
                 }
             }
         }
-        logger.debug("Article positions read in ${time/1000}.${time%1000} s")
+        logger.debug("Article positions read in ${seconds(time)}")
         return positions
     }
 
@@ -77,29 +77,44 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
 
         val article: List<String>
         val time = measureTimeMillis {
-            article = RandomAccessFile(dictionaryFile, "r").use { raf ->
-                raf.seek(position)
-                var articleCounter = 0
-                val articleLines = mutableListOf<String>()
+            article = RandomAccessFile(dictionaryFile, "r").use { readArticleLines(it, position) }
+        }
+        logger.debug("Article read in ${seconds(time)}")
+        return article
+    }
 
-                while (raf.filePointer < raf.length()) {
-                    val line = raf.readLine(charset("UTF-8"))
-                    if (line != null) {
-                        if (line.startsWith(Tags.article.toString())) {
-                            articleCounter++
-                        }
-                        if (articleCounter > 1) {
-                            break
-                        } else {
-                            articleLines.add(line)
-                        }
-                    }
-                }
-                articleLines
+    fun readArticles(positions: List<Long>): List<List<String>> {
+        logger.debug("Read ${positions.size} articles")
+
+        val articles: List<List<String>>
+        val time = measureTimeMillis {
+            articles = RandomAccessFile(dictionaryFile, "r").use { raf ->
+                positions.map { readArticleLines(raf, it)  }
             }
         }
-        logger.debug("Article read in ${time/1000}.${time%1000} s")
-        return article
+        logger.debug("Articles read in ${seconds(time)}")
+        return articles
+    }
+
+    private fun readArticleLines(raf: RandomAccessFile, position: Long): List<String> {
+        raf.seek(position)
+        var articleCounter = 0
+        val articleLines = mutableListOf<String>()
+
+        while (raf.filePointer < raf.length()) {
+            val line = raf.readLine(charset("UTF-8"))
+            if (line != null) {
+                if (line.startsWith(Tags.article.toString())) {
+                    articleCounter++
+                }
+                if (articleCounter > 1) {
+                    break
+                } else {
+                    articleLines.add(line)
+                }
+            }
+        }
+        return articleLines
     }
 
     private fun restoreArticlePositions(indexLines: List<String>): Map<String, List<Long>> {
@@ -125,4 +140,6 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
     }
 
     private fun parseKey(articleLine: String): String? = keyRegex.find(articleLine)?.groups?.get(1)?.value
+
+    private fun seconds(millis: Long) = "${millis/1000}.${millis%1000} s"
 }
