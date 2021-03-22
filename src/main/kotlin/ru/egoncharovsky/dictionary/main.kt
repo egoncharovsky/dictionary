@@ -6,5 +6,5 @@ fun main(args: Array<String>) {
 
     val dictionary = Dictionary(reader)
     val articles = dictionary.getArticles("substantial")
-    println()
+    println(articles!![0].raw)
 }
