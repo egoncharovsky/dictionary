@@ -9,7 +9,7 @@ class TextParser(
 
     fun parse(raw: String): Text {
         if (!abbreviationPlaceholder.containsMatchIn(raw)) {
-            return PlainText(raw)
+            return PlainText(raw.trim())
         }
         val parts = mutableListOf<Text>()
 

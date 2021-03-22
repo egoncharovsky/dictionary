@@ -1,9 +1,9 @@
 package ru.egoncharovsky.dictionary.entity
 
 data class PlainText(
-    val string: String
+    val text: String
 ) : Text {
-    override fun asPlain(): String = string
+    override fun asPlain(): String = text
 
-    override fun toString(): String = string
+    override fun toString(): String = text
 }
