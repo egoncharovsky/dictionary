@@ -7,18 +7,10 @@ import java.io.RandomAccessFile
 import kotlin.system.measureTimeMillis
 
 class DictionaryReader(dictionaryPath: String, indexPath: String) {
-    private object Tag {
-        const val article = "<ar>"
-
-        const val key = "<k>"
-
-        fun closing(tag: String) = tag.replace("<", "</")
-    }
-
     private val dictionaryFile = File(dictionaryPath)
     private val indexFile = File(indexPath)
 
-    private val keyRegex = "${Tag.key}(.*)${Tag.closing(Tag.key)}".toRegex()
+    private val keyRegex = "${Tags.key}(.*)${Tags.key.closing()}".toRegex()
 
     private val indexSeparator = ","
     private val indexKeyValueSeparator = ":"
@@ -62,7 +54,7 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
             while (raf.filePointer < raf.length()) {
                 val lineStart = raf.filePointer
                 raf.readLine(charset("UTF-8"))?.let { line ->
-                    if (line.startsWith(Tag.article)) {
+                    if (line.startsWith(Tags.article.toString())) {
 
                         val key = parseKey(line) ?: throw KeyNotFound(lineStart, line)
 
@@ -93,7 +85,7 @@ class DictionaryReader(dictionaryPath: String, indexPath: String) {
                 while (raf.filePointer < raf.length()) {
                     val line = raf.readLine(charset("UTF-8"))
                     if (line != null) {
-                        if (line.startsWith(Tag.article)) {
+                        if (line.startsWith(Tags.article.toString())) {
                             articleCounter++
                         }
                         if (articleCounter > 1) {

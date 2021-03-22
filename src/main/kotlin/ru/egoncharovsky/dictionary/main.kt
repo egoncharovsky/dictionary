@@ -4,8 +4,7 @@ fun main(args: Array<String>) {
 
     val reader = DictionaryReader("content/magus/dict.xdxf", "index/magus_dict.xdxf.index")
 
-    val articlePositions = reader.readArticlePositions()
-    val article = reader.readArticle(articlePositions["substantial"]!!.first())
-    article.forEach { println(it) }
+    val dictionary = Dictionary(reader)
+    val articles = dictionary.getArticles("substantial")
     println()
 }
